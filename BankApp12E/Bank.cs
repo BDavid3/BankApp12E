@@ -1,4 +1,6 @@
-﻿namespace BankApp12E
+﻿using Microsoft.Testing.Platform.Extensions.Messages;
+
+namespace BankApp12E
 {
     public class Bank
     {
@@ -48,6 +50,38 @@
 
             accounts[account] -= amount;
             return true;
+        }
+
+        public bool Transfer(string fromAccount, string toAccount, int amount)
+        {
+            if (!accounts.ContainsKey(fromAccount) || !accounts.ContainsKey(toAccount))
+            {
+                throw new ArgumentException("Invalid account");
+            }
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Invalid amount");
+            }
+            if (accounts[fromAccount] < amount)
+            {
+                return false;
+            }
+            accounts[fromAccount] -= amount;
+            accounts[toAccount] += amount;
+            return true;
+        }
+
+        public void CloseAccount(string account)
+        {
+            if (!accounts.ContainsKey(account))
+            {
+                throw new ArgumentException("Invalid account");
+            }
+            if (accounts[account] > 0)
+            {
+                throw new InvalidOperationException("Amount not zero");
+            }
+            accounts.Remove(account);
         }
     }
 }
