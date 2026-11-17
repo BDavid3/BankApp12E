@@ -1,87 +1,147 @@
 ﻿using Microsoft.Testing.Platform.Extensions.Messages;
+using System.Security.Cryptography;
 
 namespace BankApp12E
 {
     public class Bank
     {
-        Dictionary<string, int> accounts = new Dictionary<string, int>();
+        List<Account> accounts = new List<Account>();
 
-        public void CreateAccount(string account)
+        public void CreateAccount(string number, string name, int balance)
         {
-            accounts.Add(account, 0);
+            Account newAccount = new Account(number,name,balance);
+            accounts.Add(newAccount);
         }
 
         public int GetBalance(string account)
         {
-            if (!accounts.ContainsKey(account))
+            foreach (var i in accounts)
             {
-                throw new ArgumentException("Invalid account");
+                if (i.AccountNumber == account)
+                {
+                    return i.AccountBalance;
+                }
             }
-            return accounts[account];
+            throw new ArgumentException("Invalid account");
         }
 
         public void Deposit(string account, int amount)
         {
-            if (!accounts.ContainsKey(account))
-            {
-                throw new ArgumentException("Invalid account");
-            }
             if (amount < 0)
             {
                 throw new ArgumentException("Invalid amount");
             }
-            accounts[account] += amount;
+
+            foreach (var i in accounts)
+            {
+                if (i.AccountNumber == account)
+                {
+                    i.AccountBalance += amount;
+                    return;
+                }
+            }
+
+            throw new ArgumentException("Invalid account");
         }
 
         public bool Withdraw(string account, int amount)
         {
-            if (!accounts.ContainsKey(account))
-            {
-                throw new ArgumentException("Invalid account");
-            }
             if (amount < 0)
             {
                 throw new ArgumentException("Invalid amount");
             }
-            if (accounts[account] < amount)
-            {
-                return false;
-            }
 
-            accounts[account] -= amount;
-            return true;
+
+            foreach (var i in accounts)
+            {
+                if (i.AccountNumber == account)
+                {
+                    if (i.AccountBalance < amount)
+                    {
+                        return false;
+                    }
+
+                    i.AccountBalance -= amount;
+                    return true;
+                }
+            }
+            throw new ArgumentException("Invalid account");
         }
 
         public bool Transfer(string fromAccount, string toAccount, int amount)
         {
-            if (!accounts.ContainsKey(fromAccount) || !accounts.ContainsKey(toAccount))
+            bool tempBoolfrom = false;
+            bool tempBoolTo = false;
+
+            foreach (var i in accounts)
+            {
+                if (i.AccountNumber == fromAccount)
+                {
+                    tempBoolfrom = true;    
+                }
+                if (i.AccountNumber == toAccount)
+                {
+                    tempBoolTo = true;
+                }
+            }
+            if (!tempBoolfrom || !tempBoolTo)
             {
                 throw new ArgumentException("Invalid account");
             }
-            if (amount <= 0)
+
+            if (tempBoolfrom && tempBoolTo)
             {
-                throw new ArgumentException("Invalid amount");
+                if (amount <= 0)
+                    throw new ArgumentException("Invalid amount");
             }
-            if (accounts[fromAccount] < amount)
+
+            if (tempBoolfrom && tempBoolTo)
             {
-                return false;
+                foreach (var i in accounts)
+                {
+                    if (i.AccountNumber == fromAccount)
+                        if (i.AccountBalance < amount)
+                            return false;
+                }
             }
-            accounts[fromAccount] -= amount;
-            accounts[toAccount] += amount;
-            return true;
+
+            if (tempBoolfrom && tempBoolTo)
+            {
+                foreach (var i in accounts)
+                {
+                    if (i.AccountNumber == fromAccount)
+                        i.AccountBalance -= amount;
+                }
+
+                foreach (var i in accounts)
+                {
+                    if (i.AccountNumber == toAccount)
+                        i.AccountBalance += amount;
+                }
+
+                return true;
+            }
+
+            return false;
+         
         }
 
         public void CloseAccount(string account)
         {
-            if (!accounts.ContainsKey(account))
+            foreach (var i in accounts)
             {
-                throw new ArgumentException("Invalid account");
+                if (i.AccountNumber == account)
+                    if (i.AccountBalance > 0)
+                        throw new InvalidOperationException("Amount not zero");
             }
-            if (accounts[account] > 0)
+
+            foreach (var i in accounts)
             {
-                throw new InvalidOperationException("Amount not zero");
+                if (i.AccountNumber == account)
+                    accounts.Remove(i);
             }
-            accounts.Remove(account);
+
+            throw new ArgumentException("Invalid account");
         }
     }
 }

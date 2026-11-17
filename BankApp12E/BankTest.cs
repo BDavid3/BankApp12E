@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace BankApp12E
 {
@@ -14,7 +15,7 @@ namespace BankApp12E
         public void SetUp()
         {
             bank = new Bank();
-            bank.CreateAccount("1234");
+            bank.CreateAccount("1234", "gobmaBank", 0);
         }
 
         [Test]
@@ -47,7 +48,7 @@ namespace BankApp12E
         [Test]
         public void DepositMultipleAccounts()
         {
-            bank.CreateAccount("5678");
+            bank.CreateAccount("5678", "gobmaBank2", 0);
             bank.Deposit("1234", 10000);
             Assert.That(bank.GetBalance("1234"), Is.EqualTo(10000));
             Assert.That(bank.GetBalance("5678"), Is.Zero);
@@ -90,7 +91,7 @@ namespace BankApp12E
         [Test]
         public void TransferNormal()
         {
-            bank.CreateAccount("5678");
+            bank.CreateAccount("5678", "gobmaBank2", 0);
             bank.Deposit("1234", 10000);
             bank.Transfer("1234", "5678", 5000);
             Assert.That(bank.GetBalance("1234"), Is.EqualTo(5000));
@@ -100,14 +101,14 @@ namespace BankApp12E
         [Test]
         public void TransferNegativeAmount()
         {
-            bank.CreateAccount("5678");
+            bank.CreateAccount("5678", "gobmaBank2", 0);
             Assert.That(() => bank.Transfer("1234", "5678", -5000), Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
         public void TransferMoreThanBalance()
         {
-            bank.CreateAccount("5678");
+            bank.CreateAccount("5678", "gobmaBank2", 0);
             bank.Deposit("1234", 10000);
             Assert.That(bank.Transfer("1234", "5678", 15000), Is.False);
             Assert.That(bank.GetBalance("1234"), Is.EqualTo(10000));
